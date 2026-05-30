@@ -263,65 +263,130 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mouse/Touch Swipe interactions
             let isDragging = false;
             let startX = 0;
+            let startY = 0;
+            let currentTranslate = 0;
+            let prevTranslate = 0;
             let animationID = 0;
-            
-            const touchStart = () => {
-                return function (event) {
-                    isDragging = true;
-                    startX = getPositionX(event);
-                    animationID = requestAnimationFrame(animation);
-                };
+            let isSwipingHorizontal = false;
+            let isSwipingVertical = false;
+
+            const getTranslateOffset = () => {
+                const wrapperWidth = track.parentElement.clientWidth;
+                const slideWidth = slides[0].clientWidth;
+                const gap = 30; // standard 30px gap in CSS
+                return (wrapperWidth / 2) - (slideWidth / 2) - (currentIndex * (slideWidth + gap));
             };
-            
-            const touchMove = (event) => {
-                if (isDragging) {
-                    const currentX = getPositionX(event);
-                    const diff = currentX - startX;
-                    // Move track slightly to preview drag
-                    const wrapperWidth = track.parentElement.clientWidth;
-                    const slideWidth = slides[0].clientWidth;
-                    const gap = 30;
-                    const baseShift = (wrapperWidth / 2) - (slideWidth / 2) - (currentIndex * (slideWidth + gap));
-                    track.style.transform = `translateX(${baseShift + diff}px)`;
-                }
+
+            const dragStart = (event) => {
+                isDragging = true;
+                isSwipingHorizontal = false;
+                isSwipingVertical = false;
+                
+                startX = getPositionX(event);
+                startY = getPositionY(event);
+                prevTranslate = getTranslateOffset();
+                
+                // Disable transition during drag for real-time responsiveness
+                track.style.transition = 'none';
+                
+                animationID = requestAnimationFrame(animation);
             };
-            
-            const touchEnd = (event) => {
-                if (isDragging) {
-                    isDragging = false;
-                    cancelAnimationFrame(animationID);
-                    
-                    const endX = getPositionX(event);
-                    const diffX = endX - startX;
-                    
-                    // Swipe thresholds
-                    if (diffX < -100 && currentIndex < slides.length - 1) {
-                        moveToSlide(currentIndex + 1);
-                    } else if (diffX > 100 && currentIndex > 0) {
-                        moveToSlide(currentIndex - 1);
-                    } else {
-                        moveToSlide(currentIndex); // return to current
+
+            const dragMove = (event) => {
+                if (!isDragging) return;
+                
+                const currentX = getPositionX(event);
+                const currentY = getPositionY(event);
+                
+                const diffX = currentX - startX;
+                const diffY = currentY - startY;
+
+                // Detect direction
+                if (!isSwipingHorizontal && !isSwipingVertical) {
+                    if (Math.abs(diffX) > 10) {
+                        isSwipingHorizontal = true;
+                    } else if (Math.abs(diffY) > 10) {
+                        isSwipingVertical = true;
                     }
                 }
+
+                if (isSwipingHorizontal) {
+                    // Prevent page scroll when swiping horizontally
+                    if (event.cancelable) event.preventDefault();
+                    currentTranslate = prevTranslate + diffX;
+                }
             };
-            
+
+            const dragEnd = (event) => {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                cancelAnimationFrame(animationID);
+                
+                // Restore css transition for slide snap
+                track.style.transition = '';
+                
+                if (isSwipingHorizontal) {
+                    const currentX = getPositionX(event);
+                    const diffX = currentX - startX;
+                    
+                    const threshold = 60; // 60px swipe threshold is more responsive on mobile
+                    if (diffX < -threshold && currentIndex < slides.length - 1) {
+                        moveToSlide(currentIndex + 1);
+                    } else if (diffX > threshold && currentIndex > 0) {
+                        moveToSlide(currentIndex - 1);
+                    } else {
+                        moveToSlide(currentIndex);
+                    }
+                } else {
+                    moveToSlide(currentIndex);
+                }
+                
+                isSwipingHorizontal = false;
+                isSwipingVertical = false;
+            };
+
             const getPositionX = (event) => {
-                return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+                if (event.type.includes('mouse')) return event.pageX;
+                if (event.touches && event.touches.length > 0) {
+                    return event.touches[0].clientX;
+                }
+                if (event.changedTouches && event.changedTouches.length > 0) {
+                    return event.changedTouches[0].clientX;
+                }
+                return 0;
             };
-            
+
+            const getPositionY = (event) => {
+                if (event.type.includes('mouse')) return event.pageY;
+                if (event.touches && event.touches.length > 0) {
+                    return event.touches[0].clientY;
+                }
+                if (event.changedTouches && event.changedTouches.length > 0) {
+                    return event.changedTouches[0].clientY;
+                }
+                return 0;
+            };
+
             const animation = () => {
-                if (isDragging) requestAnimationFrame(animation);
+                if (isDragging && isSwipingHorizontal) {
+                    track.style.transform = `translateX(${currentTranslate}px)`;
+                }
+                if (isDragging) {
+                    animationID = requestAnimationFrame(animation);
+                }
             };
-            
+
             // Event Listeners for Touch/Mouse Dragging
-            track.addEventListener('mousedown', touchStart());
-            track.addEventListener('touchstart', touchStart());
+            track.addEventListener('mousedown', dragStart);
+            track.addEventListener('touchstart', dragStart, { passive: true });
             
-            window.addEventListener('mousemove', touchMove);
-            window.addEventListener('touchmove', touchMove);
+            window.addEventListener('mousemove', dragMove, { passive: false });
+            window.addEventListener('touchmove', dragMove, { passive: false });
             
-            window.addEventListener('mouseup', touchEnd);
-            window.addEventListener('touchend', touchEnd);
+            window.addEventListener('mouseup', dragEnd);
+            window.addEventListener('touchend', dragEnd);
+            window.addEventListener('touchcancel', dragEnd);
             
             // Initial setup
             updateSlidePositions();

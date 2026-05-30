@@ -655,6 +655,7 @@ h1, h2, h3, h4 {
     overflow: hidden;
     padding: 20px 0;
     position: relative;
+    touch-action: pan-y;
 }
 
 .carousel-track {
