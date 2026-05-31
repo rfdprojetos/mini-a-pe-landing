@@ -27,3 +27,12 @@ Porque a cidade não é só passagem.
 E é também um jeito de aprender a cuidar do mundo em que vivemos.
 
 Baixe o Mini a Pé e venha viver a cidade brincando!
+
+
+->> Links para termos de uso, política de privacidade e exclusão de conta
+
+https://miniape.com.br/termos-de-uso
+
+https://miniape.com.br/politica-de-privacidade
+
+https://miniape.com.br/excluir-conta

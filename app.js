@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { text: 'Conhecendo o Mini a Pé', href: '#conhecendo' },
         { text: 'Como Brincar', href: '#como-brincar' },
         { text: 'Relação com a Tecnologia', href: '#relacao-tecnologia' },
+        { text: 'Realização', href: '#realizacao' },
         { text: 'FAQ', href: '#faq' }
     ];
     
@@ -157,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ==========================================
+    // ==========================================
     // 4. FAQ Accordion Height transition
     // ==========================================
     const faqButtons = document.querySelectorAll('.faq-header-btn');
@@ -164,20 +166,25 @@ document.addEventListener('DOMContentLoaded', () => {
     faqButtons.forEach(button => {
         button.addEventListener('click', () => {
             const faqCard = button.closest('.faq-item-card');
-            const collapseContainer = faqCard.querySelector('.faq-body-collapse');
+            if (!faqCard) return;
+            
+            const collapseBody = faqCard.querySelector('.faq-body-collapse');
             const isOpened = faqCard.classList.contains('active');
             
-            // Close other items
+            // Close other items and reset their max-height
             document.querySelectorAll('.faq-item-card').forEach(item => {
                 item.classList.remove('active');
-                item.querySelector('.faq-body-collapse').style.maxHeight = '0';
-                item.querySelector('.faq-header-btn').setAttribute('aria-expanded', 'false');
+                const btn = item.querySelector('.faq-header-btn');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+                
+                const body = item.querySelector('.faq-body-collapse');
+                if (body) body.style.maxHeight = '0px';
             });
             
-            if (!isOpened) {
+            if (!isOpened && collapseBody) {
                 faqCard.classList.add('active');
                 button.setAttribute('aria-expanded', 'true');
-                collapseContainer.style.maxHeight = `${collapseContainer.scrollHeight}px`;
+                collapseBody.style.maxHeight = `${collapseBody.scrollHeight}px`;
             }
         });
     });

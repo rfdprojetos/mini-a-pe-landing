@@ -322,6 +322,28 @@ h1, h2, h3, h4 {
     margin-bottom: 20px;
 }
 
+.hero-eyebrow {
+    display: block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-accent-emerald-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 15px;
+}
+
+.section-eyebrow {
+    display: inline-block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-accent-emerald-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 5px;
+}
+
 .hero-desc {
     font-size: 1.15rem;
     color: var(--color-text-charcoal);
@@ -1000,6 +1022,55 @@ h1, h2, h3, h4 {
     line-height: 1.5;
 }
 
+/* --- Section 6: Realização --- */
+.realizacao {
+    background-color: var(--color-bg-white);
+    padding: 100px 0 120px;
+}
+
+.realizacao-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 80px;
+    margin-top: 40px;
+}
+
+.partner-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.partner-card:hover {
+    transform: translateY(-5px);
+}
+
+.partner-logo {
+    height: 120px;
+    width: auto;
+    object-fit: contain;
+    transition: all 0.3s ease;
+}
+
+.partner-logo.logo-mari {
+    height: 250px;
+}
+
+@media (max-width: 768px) {
+    .realizacao-grid {
+        flex-direction: column;
+        gap: 24px;
+    }
+    .partner-logo {
+        height: 100px;
+    }
+    .partner-logo.logo-mari {
+        height: 240px;
+    }
+}
+
 
 
 /* --- Section 7: FAQ --- */
@@ -1068,10 +1139,11 @@ h1, h2, h3, h4 {
 .faq-body-collapse {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.4s var(--ease-premium);
+    transition: max-height 0.3s var(--ease-premium);
 }
 
 .faq-body-text {
+    min-height: 0;
     padding: 0 28px 24px 28px;
     color: var(--color-text-charcoal);
     font-size: 0.95rem;
